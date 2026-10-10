@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navotas National High School - Multi-Role Portal System</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        nnhsBlue: '#003399',
+                        nnhsDarkBlue: '#002266',
+                        nnhsGold: '#DAA520',
+                        nnhsGoldHover: '#B8860B',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+        .tab-active { border-bottom: 3px solid #003399; color: #003399; font-weight: 600; }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .badge-pending { background-color: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; }
+        .badge-approved { background-color: #D1FAE5; color: #065F46; border: 1px solid #6EE7B7; }
+        .badge-rejected { background-color: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800 flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-nnhsBlue text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-white rounded-full p-1 flex items-center justify-center border-2 border-nnhsGold shadow-md">
+                    <!-- Placeholder Official School Crest -->
+                    <svg class="w-10 h-10 text-nnhsBlue" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2L1 7l11 5 9-4.09V17h2V7L12 2zm0 8.75L4.22 7 12 3.25 19.78 7 12 10.75zM4 10.75v6.5L12 22l8-4.75v-6.5L12 15.5l-8-4.75z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-lg md:text-xl font-bold tracking-tight leading-tight">NAVOTAS NATIONAL HIGH SCHOOL</h1>
+                    <p class="text-xs text-amber-300 font-medium tracking-wide">DepEd Region NCR – Division of Navotas City</p>
+                </div>
+            </div>
+
+            <div id="userInfoHeader" class="hidden items-center space-x-4">
+                <div class="text-right hidden sm:block">
+                    <div id="userDisplayName" class="font-semibold text-sm">Juan Dela Cruz</div>
+                    <div id="userDisplayRole" class="text-xs text-slate-200">Student (LRN: 13645200912)</div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span id="userStatusBadge" class="text-xs px-2.5 py-1 rounded-full font-bold badge-approved">APPROVED</span>
+                    <button onclick="logout()" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold px-3 py-1.5 rounded-lg text-xs transition duration-200 flex items-center gap-1 shadow">
+                        <i class="fa-solid fa-right-from-bracket"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6">
+
+        <!-- Auth Views Container -->
+        <div id="authContainer" class="max-w-md mx-auto my-8">
+            <!-- Login Card -->
+            <div id="loginCard" class="bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-slate-200">
+                <div class="text-center mb-6">
+                    <div class="inline-block p-3 bg-blue-50 rounded-full text-nnhsBlue mb-2">
+                        <i class="fa-solid fa-user-shield text-3xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-800">Portal Login</h2>
+                    <p class="text-xs text-slate-500 mt-1">Access Navotas National High School Integrated Services</p>
+                </div>
+
+                <div id="loginNotice" class="hidden mb-4 p-3.5 rounded-xl text-xs flex items-start gap-2.5"></div>
+
+                <form onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">LRN / Employee ID / Username</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-id-card absolute left-3 top-3 text-slate-400 text-sm"></i>
+                            <input type="text" id="loginId" required placeholder="Enter LRN or Employee ID" class="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-nnhsBlue focus:border-nnhsBlue outline-none">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Password</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-lock absolute left-3 top-3 text-slate-400 text-sm"></i>
+                            <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-nnhsBlue focus:border-nnhsBlue outline-none">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-nnhsBlue hover:bg-nnhsDarkBlue text-white font-semibold py-2.5 rounded-lg shadow-md hover:shadow-lg transition text-sm flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-key"></i> Authenticate & Log In
+                    </button>
+                </form>
+
+                <div class="mt-6 pt-4 border-t border-slate-100 text-center">
+                    <p class="text-xs text-slate-600">Don't have an approved account?</p>
+                    <button onclick="toggleAuthMode('register')" class="mt-2 text-xs font-semibold text-nnhsBlue hover:underline">
+                        Register New Account & Submit ID Verification
+                    </button>
+                </div>
+
+                <!-- Demo Accounts Helper -->
+                <div class="mt-6 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                    <p class="text-xs font-bold text-slate-700 mb-2 flex items-center gap-1">
+                        <i class="fa-solid fa-circle-info text-nnhsBlue"></i> Demo Quick Logins:
+                    </p>
+                    <div class="grid grid-cols-1 gap-1.5 text-xs text-slate-600">
+                        <button onclick="fillDemo('13645200912')" class="text-left hover:bg-slate-200 p-1.5 rounded flex justify-between">
+                            <span><strong>Student:</strong> 13645200912</span>
+                            <span class="text-emerald-600 font-medium">Approved</span>
+                        </button>
+                        <button onclick="fillDemo('T-2021-089')" class="text-left hover:bg-slate-200 p-1.5 rounded flex justify-between">
+                            <span><strong>Teacher:</strong> T-2021-089</span>
+                            <span class="text-emerald-600 font-medium">Approved</span>
+                        </button>
+                        <button onclick="fillDemo('DH-2018-003')" class="text-left hover:bg-slate-200 p-1.5 rounded flex justify-between">
+                            <span><strong>Dept Head:</strong> DH-2018-003</span>
+                            <span class="text-emerald-600 font-medium">Approved</span>
+                        </button>
+                        <button onclick="fillDemo('ADM-2015-001')" class="text-left hover:bg-slate-200 p-1.5 rounded flex justify-between">
+                            <span><strong>School Admin:</strong> ADM-2015-001</span>
+                            <span class="text-emerald-600 font-medium">Approved</span>
+                        </button>
+                        <button onclick="fillDemo('SEC-2020-007')" class="text-left hover:bg-slate-200 p-1.5 rounded flex justify-between">
+                            <span><strong>IT Security:</strong> SEC-2020-007</span>
+                            <span class="text-emerald-600 font-medium">Approved</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Registration Card -->
+            <div id="registerCard" class="hidden bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-slate-200">
+                <div class="text-center mb-6">
+                    <div class="inline-block p-3 bg-amber-50 rounded-full text-nnhsGoldHover mb-2">
+                        <i class="fa-solid fa-address-card text-3xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-800">Account Registration</h2>
+                    <p class="text-xs text-slate-500 mt-1">Submit account details for Admin & IT Security Approval</p>
+                </div>
+
+                <form onsubmit="handleRegister(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Account Category / Role</label>
+                        <select id="regCategory" required onchange="updateIdLabel()" class="w-full p-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-nnhsBlue outline-none">
+                            <option value="Student">Category 1: Student (Learner)</option>
+                            <option value="Teacher">Category 2: Teacher / Faculty</option>
+                            <option value="Dept Head">Category 3: Department Head</option>
+                            <option value="School Admin">Category 4: School Admin / Officer</option>
+                            <option value="IT Auditor">Category 5: IT Security & Device Auditor</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Full Name</label>
+                        <input type="text" id="regName" required placeholder="e.g. Maria Clara Santos" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-nnhsBlue outline-none">
+                    </div>
+
+                    <div>
+                        <label id="regIdLabel" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">12-Digit LRN (Learner Reference No.)</label>
+                        <input type="text" id="regIdNumber" required placeholder="e.g. 136452998811" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-nnhsBlue outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Password</label>
+                        <input type="password" id="regPassword" required placeholder="••••••••" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-nnhsBlue outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">School ID Card / Document Proof</label>
+                        <div class="border-2 border-dashed border-slate-300 rounded-lg p-3 text-center bg-slate-50">
+                            <input type="file" id="regIdProof" accept="image/*" onchange="previewID(event)" class="hidden">
+                            <button type="button" onclick="document.getElementById('regIdProof').click()" class="text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1.5 rounded font-medium">
+                                <i class="fa-solid fa-upload mr-1"></i> Choose ID Card Photo
+                            </button>
+                            <p class="text-[10px] text-slate-500 mt-1">Upload clear image of valid DepEd ID or Enrollment Form</p>
+                            <div id="idPreviewContainer" class="hidden mt-2">
+                                <img id="idPreviewImg" class="max-h-28 mx-auto rounded border shadow-sm">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-amber-50 rounded-lg border border-amber-200 text-amber-800 text-xs">
+                        <i class="fa-solid fa-shield-halved text-amber-600 mr-1"></i>
+                        <strong>Approval Requirement:</strong> Accounts created here are queued for manual verification by School Admin & IT Security.
+                    </div>
+
+                    <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2.5 rounded-lg shadow transition text-sm flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i> Submit Registration Letter & ID
+                    </button>
+                </form>
+
+                <div class="mt-4 text-center">
+                    <button onclick="toggleAuthMode('login')" class="text-xs font-semibold text-nnhsBlue hover:underline">
+                        Already have an account? Return to Login
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Views Container -->
+        <div id="dashboardContainer" class="hidden">
+            <!-- Portal Category Tabs -->
+            <div class="bg-white rounded-xl shadow-md p-2 mb-6 border border-slate-200 overflow-x-auto">
+                <div class="flex space-x-2 min-w-max">
+                    <button id="tabPortal1" onclick="switchPortal(1)" class="px-4 py-2 text-xs md:text-sm font-semibold rounded-lg flex items-center gap-2 transition text-slate-600 hover:bg-slate-100">
+                        <i class="fa-solid fa-user-graduate"></i> Category 1: Student Portal
+                    </button>
+                    <button id="tabPortal2" onclick="switchPortal(2)" class="px-4 py-2 text-xs md:text-sm font-semibold rounded-lg flex items-center gap-2 transition text-slate-600 hover:bg-slate-100">
+                        <i class="fa-solid fa-chalkboard-user"></i> Category 2: Teacher Portal
+                    </button>
+                    <button id="tabPortal3" onclick="switchPortal(3)" class="px-4 py-2 text-xs md:text-sm font-semibold rounded-lg flex items-center gap-2 transition text-slate-600 hover:bg-slate-100">
+                        <i class="fa-solid fa-user-tie"></i> Category 3: Dept Head
+                    </button>
+                    <button id="tabPortal4" onclick="switchPortal(4)" class="px-4 py-2 text-xs md:text-sm font-semibold rounded-lg flex items-center gap-2 transition text-slate-600 hover:bg-slate-100 relative">
+                        <i class="fa-solid fa-building-columns"></i> Category 4: School Admin
+                        <span id="adminPendingBadge" class="hidden bg-amber-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold">0</span>
+                    </button>
+                    <button id="tabPortal5" onclick="switchPortal(5)" class="px-4 py-2 text-xs md:text-sm font-semibold rounded-lg flex items-center gap-2 transition text-slate-600 hover:bg-slate-100 relative">
+                        <i class="fa-solid fa-shield-virus"></i> Category 5: IT Auditor
+                        <span id="itPendingBadge" class="hidden bg-amber-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold">0</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- PORTAL 1: STUDENT VIEW -->
+            <div id="viewPortal1" class="portal-view space-y-6">
+                <!-- Welcome Card -->
+                <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-nnhsBlue">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div>
+                            <span class="text-xs font-bold text-nnhsBlue uppercase tracking-wider">DepEd NCR • Learner Portal</span>
+                            <h2 class="text-2xl font-bold text-slate-800" id="studentWelcomeName">Juan Dela Cruz</h2>
+                            <p class="text-xs text-slate-500">LRN: 13645200912 | Grade 10 - Sampaguita | Track: Junior High School</p>
+                        </div>
+                        <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 text-right">
+                            <span class="text-xs text-blue-700 font-semibold block">General Average (Q1-Q3)</span>
+                            <span class="text-2xl font-bold text-nnhsBlue">91.75%</span>
+                            <span class="text-[10px] text-emerald-600 font-semibold block"><i class="fa-solid fa-arrow-up"></i> Academic Excellence</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DepEd ECR Grades Section -->
+                <div class="bg-white rounded-xl shadow-md p-6 border border-slate-200">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-file-invoice text-nnhsBlue"></i> DepEd ECR Academic Summary (SF9)
+                        </h3>
+                        <span class="text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full border">SY 2025-2026</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700 text-xs uppercase font-semibold">
+                                    <th class="p-3 border">Learning Area / Subject</th>
+                                    <th class="p-3 border text-center">Q1</th>
+                                    <th class="p-3 border text-center">Q2</th>
+                                    <th class="p-3 border text-center">Q3</th>
+                                    <th class="p-3 border text-center">Q4</th>
+                                    <th class="p-3 border text-center">Final Grade</th>
+                                    <th class="p-3 border text-center">Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200 text-xs" id="studentGradesBody">
+                                <tr>
+                                    <td class="p-3 border font-medium">Filipino 10</td>
+                                    <td class="p-3 border text-center">90</td>
+                                    <td class="p-3 border text-center">92</td>
+                                    <td class="p-3 border text-center">91</td>
+                                    <td class="p-3 border text-center font-semibold text-slate-400">--</td>
+                                    <td class="p-3 border text-center font-bold text-nnhsBlue">91.00</td>
+                                    <td class="p-3 border text-center"><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">PASSED</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 border font-medium">English 10</td>
+                                    <td class="p-3 border text-center">88</td>
+                                    <td class="p-3 border text-center">90</td>
+                                    <td class="p-3 border text-center">93</td>
+                                    <td class="p-3 border text-center font-semibold text-slate-400">--</td>
+                                    <td class="p-3 border text-center font-bold text-nnhsBlue">90.33</td>
+                                    <td class="p-3 border text-center"><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">PASSED</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 border font-medium">Mathematics 10</td>
+                                    <td class="p-3 border text-center">94</td>
+                                    <td class="p-3 border text-center">95</td>
+                                    <td class="p-3 border text-center">96</td>
+                                    <td class="p-3 border text-center font-semibold text-slate-400">--</td>
+                                    <td class="p-3 border text-center font-bold text-nnhsBlue">95.00</td>
+                                    <td class="p-3 border text-center"><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">PASSED</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 border font-medium">Science 10</td>
+                                    <td class="p-3 border text-center">89</td>
+                                    <td class="p-3 border text-center">91</td>
+                                    <td class="p-3 border text-center">90</td>
+                                    <td class="p-3 border text-center font-semibold text-slate-400">--</td>
+                                    <td class="p-3 border text-center font-bold text-nnhsBlue">90.00</td>
+                                    <td class="p-3 border text-center"><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">PASSED</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 2-Way Teacher Inquiry Thread -->
+                <div class="bg-white rounded-xl shadow-md p-6 border border-slate-200">
+                    <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-comments text-nnhsBlue"></i> Teacher Helpdesk & Inquiry Thread
+                    </h3>
+                    <div class="bg-slate-50 border rounded-xl p-4 h-64 overflow-y-auto space-y-3 mb-4" id="studentThreadBox">
+                        <div class="bg-blue-100 p-3 rounded-lg max-w-md ml-auto text-xs text-blue-900 border border-blue-200">
+                            <p class="font-bold">Juan Dela Cruz (Student)</p>
+                            <p>Good day Sir Rol, may I ask for clarification regarding Project Submission #2 in Math?</p>
+                            <span class="text-[10px] text-blue-600 block text-right mt-1">Oct 10, 09:15 AM</span>
+                        </div>
+                        <div class="bg-white p-3 rounded-lg max-w-md border border-slate-200 text-xs text-slate-800 shadow-sm">
+                            <p class="font-bold text-nnhsBlue">Mr. Rol (Math Advisory Teacher)</p>
+                            <p>Hello Juan! You can submit the Excel electronic class record computation sheet on or before Friday, 5 PM.</p>
+                            <span class="text-[10px] text-slate-400 block text-right mt-1">Oct 10, 10:02 AM</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="studentMsgInput" placeholder="Type your inquiry or message to your teacher..." class="flex-1 border rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-nnhsBlue outline-none">
+                        <button onclick="sendStudentMessage()" class="bg-nnhsBlue hover:bg-nnhsDarkBlue text-white px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-1">
+                            <i class="fa-solid fa-paper-plane"></i> Send
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PORTAL 2: TEACHER VIEW -->
+            <div id="viewPortal2" class="portal-view space-y-6 hidden">
+                <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-emerald-600">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div>
+                            <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider">DepEd Faculty Portal</span>
+                            <h2 class="text-2xl font-bold text-slate-800">Mr. Rol - Faculty Teacher</h2>
+                            <p class="text-xs text-slate-500">Employee ID: T-2021-089 | Science & Math Department</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <span class="bg-emerald-50 text-emerald-700 text-xs font-semibold px-3 py-1.5 rounded-lg border border-emerald-200 flex items-center gap-1">
+                                <i class="fa-solid fa-users"></i> 4 Active Sections (160 Students)
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DepEd Excel-Style Electronic Class Record -->
+                <div class="bg-white rounded-xl shadow-md p-6 border border-slate-200">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-table text-emerald-600"></i> DepEd Electronic Class Record (ECR Formula Hub)
+                            </h3>
+                            <p class="text-xs text-slate-500">Grading System: Written Works (40%), Performance Tasks (40%), Assessment (20%)</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <select id="teacherSectionSelect" onchange="renderTeacherStudents()" class="border text-xs rounded-lg px-3 py-1.5 font-semibold bg-slate-50">
+                                <option value="10-Sampaguita">Grade 10 - Sampaguita (40 Students)</option>
+                                <option value="10-Rizal">Grade 10 - Rizal (40 Students)</option>
+                                <option value="10-Bonifacio">Grade 10 - Bonifacio (40 Students)</option>
+                                <option value="10-Mabini">Grade 10 - Mabini (40 Students)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-left border-collapse border border-slate-300">
+                            <thead>
+                                <tr class="bg-slate-200 text-slate-800 font-bold">
+                                    <th class="p-2 border border-slate-300">LRN Number</th>
+                                    <th class="p-2 border border-slate-300">Student Name</th>
+                                    <th class="p-2 border border-slate-300 text-center bg-blue-50">Written (40%)</th>
+                                    <th class="p-2 border border-slate-300 text-center bg-emerald-50">Performance (40%)</th>
+                                    <th class="p-2 border border-slate-300 text-center bg-amber-50">Exam (20%)</th>
+                                    <th class="p-2 border border-slate-300 text-center bg-indigo-50">Computed Final Grade</th>
+                                    <th class="p-2 border border-slate-300 text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="teacherECRTable">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PORTAL 3: DEPARTMENT HEAD VIEW -->
+            <div id="viewPortal3" class="portal-view space-y-6 hidden">
+                <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-indigo-600">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div>
+                            <span class="text-xs font-bold text-indigo-700 uppercase tracking-wider">Academic Supervision</span>
+                            <h2 class="text-2xl font-bold text-slate-800">Dr. Maria Clara</h2>
+                            <p class="text-xs text-slate-500">Head, Science & Mathematics Department | Employee ID: DH-2018-003</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Faculty Performance & Evaluation Hub -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-xl shadow-md p-6 border border-slate-200">
+                        <h3 class="text-md font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-line text-indigo-600"></i> Faculty Performance Tracking
+                        </h3>
+                        <div class="space-y-4 text-xs">
+                            <div class="p-3 bg-slate-50 rounded-lg border flex justify-between items-center">
+                                <div>
+                                    <p class="font-bold text-slate-800">Mr. Rol (Science)</p>
+                                    <p class="text-slate-500">Submission Rate: 100% | Student Satisfaction: 94%</p>
+                                </div>
+                                <span class="bg-emerald-100 text-emerald-800 px-2 py-1 rounded font-bold">Outstanding</span>
+                            </div>
+                            <div class="p-3 bg-slate-50 rounded-lg border flex justify-between items-center">
+                                <div>
+                                    <p class="font-bold text-slate-800">Ms. Santos (Mathematics)</p>
+                                    <p class="text-slate-500">Submission Rate: 98% | Student Satisfaction: 91%</p>
+                                </div>
+                                <span class="bg-emerald-100 text-emerald-800 px-2 py-1 rounded font-bold">Very Satisfactory</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-md p-6 border border-slate-200">
+                        <h3 class="text-md font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-comment-dots text-indigo-600"></i> Anonymous Student Feedback
+                        </h3>
+                        <div class="space-y-3 text-xs">
+                            <div class="p-3 bg-indigo-50 border border-indigo-100 rounded-lg text-indigo-950">
+                                <p class="italic">"Sir Rol explains physics concepts very clearly and allows practical experiments!"</p>
+                                <span class="text-[10px] text-indigo-600 font-semibold block mt-1">- Grade 10 Student</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PORTAL 4: SCHOOL ADMIN VIEW -->
+            <div id="viewPortal4" class="portal-view space-y-6 hidden">
+                <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-amber-500">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div>
+                            <span class="text-xs font-bold text-amber-700 uppercase tracking-wider">Executive Administration</span>
+                            <h2 class="text-2xl font-bold text-slate-800">Principal Arturo Santos</h2>
+                            <p class="text-xs text-slate-500">School Principal II / Master Admin | ID: ADM-2015-001</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NEW: Account Review & Approval Desk (Core Feature Request) -->
+                <div class="bg-white rounded-xl shadow-md p-6 border border-amber-200">
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-user-check text-amber-600"></i> Account Verification & Approval Desk
+                            </h3>
+                            <p class="text-xs text-slate-500">Review submitted LRN/ID numbers, uploaded ID documents, and issue access permissions.</p>
+                        </div>
+                        <span id="pendingCountBadge" class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full border border-amber-300">
+                            0 Requests Pending
+                        </span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700 uppercase font-semibold">
+                                    <th class="p-3 border">Timestamp</th>
+                                    <th class="p-3 border">Applicant Name</th>
+                                    <th class="p-3 border">Category</th>
+                                    <th class="p-3 border">LRN / ID No.</th>
+                                    <th class="p-3 border text-center">ID Proof Card</th>
+                                    <th class="p-3 border text-center">Status</th>
+                                    <th class="p-3 border text-center">Decision Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminApprovalTableBody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Dispatch Memorandums -->
+                <div class="bg-white rounded-xl shadow-md p-6 border border-slate-200">
+                    <h3 class="text-md font-bold text-slate-800 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-bullhorn text-amber-600"></i> Dispatch Division Memorandum
+                    </h3>
+                    <div class="space-y-3">
+                        <input type="text" id="memoTitle" placeholder="Memorandum Title (e.g. Mandatory School Security & ID Verification)" class="w-full border text-xs p-2.5 rounded-lg outline-none">
+                        <textarea id="memoBody" rows="3" placeholder="Enter full text of official announcement..." class="w-full border text-xs p-2.5 rounded-lg outline-none"></textarea>
+                        <button onclick="dispatchMemo()" class="bg-amber-600 hover:bg-amber-700 text-white font-semibold px-4 py-2 rounded-lg text-xs transition">
+                            <i class="fa-solid fa-paper-plane mr-1"></i> Broadcast to All Portals
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PORTAL 5: IT SECURITY & DEVICE AUDITOR VIEW -->
+            <div id="viewPortal5" class="portal-view space-y-6 hidden">
+                <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-red-600">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div>
+                            <span class="text-xs font-bold text-red-700 uppercase tracking-wider">Cybersecurity & Infrastructure Guard</span>
+                            <h2 class="text-2xl font-bold text-slate-800">IT Security Auditor Console</h2>
+                            <p class="text-xs text-slate-500">Live Device Tracking, IP Inspection & Security Verification Desk | ID: SEC-2020-007</p>
+                        </div>
+                        <div class="flex items-center gap-3 bg-red-50 p-3 rounded-xl border border-red-200">
+                            <div class="text-right">
+                                <p class="text-xs font-bold text-slate-800">Strict Auth Mode</p>
+                                <p class="text-[10px] text-slate-500">Require device clearance</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="strictModeToggle" onchange="toggleStrictMode(this.checked)" class="sr-only peer">
+                                <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Registration Approval Sync Console -->
+                <div class="bg-white rounded-xl shadow-md p-6 border border-slate-200">
+                    <h3 class="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-shield-cat text-red-600"></i> Account Registration Verification Queue
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700 uppercase font-semibold">
+                                    <th class="p-3 border">Timestamp</th>
+                                    <th class="p-3 border">User / Name</th>
+                                    <th class="p-3 border">LRN / ID</th>
+                                    <th class="p-3 border">Category</th>
+                                    <th class="p-3 border text-center">ID Card Proof</th>
+                                    <th class="p-3 border text-center">Status</th>
+                                    <th class="p-3 border text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="itApprovalTableBody">
+                                <!-- Dynamically filled -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Real-Time Device Audit Trail -->
+                <div class="bg-white rounded-xl shadow-md p-6 border border-slate-200">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-network-wired text-red-600"></i> Live Device & Login Audit Log
+                        </h3>
+                        <button onclick="clearAuditLogs()" class="text-xs text-slate-500 hover:text-red-600 border px-2 py-1 rounded">
+                            <i class="fa-solid fa-trash"></i> Clear Log
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700 uppercase font-semibold">
+                                    <th class="p-2.5 border">Time</th>
+                                    <th class="p-2.5 border">Account ID / Name</th>
+                                    <th class="p-2.5 border">IP Address</th>
+                                    <th class="p-2.5 border">Browser / OS</th>
+                                    <th class="p-2.5 border">Resolution</th>
+                                    <th class="p-2.5 border text-center">Security Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="deviceAuditLogBody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Modal for ID Document Preview -->
+    <div id="idModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
+            <button onclick="closeIdModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 class="text-lg font-bold text-slate-800 mb-1" id="modalApplicantName">Applicant ID Review</h3>
+            <p class="text-xs text-slate-500 mb-4" id="modalApplicantDetails">LRN: 13645200912 | Student</p>
+            <div class="border rounded-xl p-2 bg-slate-900 text-center">
+                <img id="modalIdImage" class="max-h-80 mx-auto rounded object-contain">
+            </div>
+            <div class="mt-4 flex justify-end gap-2">
+                <button onclick="closeIdModal()" class="px-4 py-2 text-xs bg-slate-200 text-slate-700 font-semibold rounded-lg">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 space-y-2"></div>
+
+    <script>
+        // Default Mock Users Data Store
+        const defaultUsers = [
+            {
+                id: "13645200912",
+                name: "Juan Dela Cruz",
+                role: "Student",
+                status: "APPROVED",
+                pass: "123456",
+                idProof: "https://placehold.co/400x250/003399/FFFFFF?text=STUDENT+ID+CARD+JUAN+DELA+CRUZ",
+                created: "2026-10-01 08:30"
+            },
+            {
+                id: "T-2021-089",
+                name: "Mr. Rol",
+                role: "Teacher",
+                status: "APPROVED",
+                pass: "123456",
+                idProof: "https://placehold.co/400x250/065F46/FFFFFF?text=FACULTY+ID+MR+ROL",
+                created: "2026-10-01 09:00"
+            },
+            {
+                id: "DH-2018-003",
+                name: "Dr. Maria Clara",
+                role: "Dept Head",
+                status: "APPROVED",
+                pass: "123456",
+                idProof: "https://placehold.co/400x250/4338CA/FFFFFF?text=DEPT+HEAD+ID+DR+CLARA",
+                created: "2026-10-01 09:15"
+            },
+            {
+                id: "ADM-2015-001",
+                name: "Principal Arturo Santos",
+                role: "School Admin",
+                status: "APPROVED",
+                pass: "123456",
+                idProof: "https://placehold.co/400x250/B45309/FFFFFF?text=ADMIN+ID+ARTURO+SANTOS",
+                created: "2026-10-01 09:30"
+            },
+            {
+                id: "SEC-2020-007",
+                name: "IT Security Auditor",
+                role: "IT Auditor",
+                status: "APPROVED",
+                pass: "123456",
+                idProof: "https://placehold.co/400x250/991B1B/FFFFFF?text=IT+SECURITY+ID+AUDITOR",
+                created: "2026-10-01 09:45"
+            }
+        ];
+
+        // State Management
+        let users = [...defaultUsers];
+        let currentUser = null;
+        let strictMode = false;
+        let auditLogs = [];
+        let tempImageBase64 = null;
+
+        // Initialize Application
+        window.onload = function() {
+            renderApprovalTables();
+            renderTeacherStudents();
+            logDeviceActivity("System Startup", "192.168.1.1", "System", "ALLOWED");
+        };
+
+        // UI Helpers & Navigation
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            const colors = {
+                success: 'bg-emerald-600 text-white',
+                warning: 'bg-amber-500 text-white',
+                danger: 'bg-red-600 text-white',
+                info: 'bg-nnhsBlue text-white'
+            };
+            toast.className = `${colors[type] || colors.info} px-4 py-3 rounded-xl shadow-xl text-xs font-semibold flex items-center gap-2 transform transition-all duration-300 translate-y-2`;
+            toast.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${message}`;
+            const container = document.getElementById('toastContainer');
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-4');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        function toggleAuthMode(mode) {
+            document.getElementById('loginCard').classList.toggle('hidden', mode === 'register');
+            document.getElementById('registerCard').classList.toggle('hidden', mode === 'login');
+            document.getElementById('loginNotice').classList.add('hidden');
+        }
+
+        function updateIdLabel() {
+            const role = document.getElementById('regCategory').value;
+            const label = document.getElementById('regIdLabel');
+            label.innerText = role === 'Student' 
+                ? '12-Digit LRN (Learner Reference No.)' 
+                : 'Employee / Faculty ID Number';
+        }
+
+        function previewID(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    tempImageBase64 = e.target.result;
+                    document.getElementById('idPreviewImg').src = tempImageBase64;
+                    document.getElementById('idPreviewContainer').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function fillDemo(id) {
+            document.getElementById('loginId').value = id;
+            document.getElementById('loginPassword').value = '123456';
+            showToast(`Demo credentials filled for ID: ${id}`, 'info');
+        }
+
+        // Registration Request Handling
+        function handleRegister(e) {
+            e.preventDefault();
+            const category = document.getElementById('regCategory').value;
+            const name = document.getElementById('regName').value.trim();
+            const idNumber = document.getElementById('regIdNumber').value.trim();
+            const password = document.getElementById('regPassword').value;
+
+            // Check duplicate
+            if (users.find(u => u.id === idNumber)) {
+                showToast("An account with this LRN / ID already exists!", "danger");
+                return;
+            }
+
+            const imgUrl = tempImageBase64 || `https://placehold.co/400x250/003399/FFFFFF?text=ID+DOC+${encodeURIComponent(name)}`;
+
+            const newUser = {
+                id: idNumber,
+                name: name,
+                role: category,
+                status: "PENDING_APPROVAL",
+                pass: password,
+                idProof: imgUrl,
+                created: new Date().toLocaleString()
+            };
+
+            users.push(newUser);
+
+            // Log security notice event
+            logDeviceActivity(`Registration Attempt: ${name}`, getMockIP(), getBrowserInfo(), "PENDING_REVIEW");
+
+            showToast("Registration Letter & ID submitted successfully! Waiting for Admin verification.", "warning");
+
+            // Reset Form & Switch to Login
+            e.target.reset();
+            document.getElementById('idPreviewContainer').classList.add('hidden');
+            tempImageBase64 = null;
+            toggleAuthMode('login');
+
+            // Show alert in login card
+            const notice = document.getElementById('loginNotice');
+            notice.className = "mb-4 p-3.5 rounded-xl text-xs flex items-start gap-2.5 badge-pending";
+            notice.innerHTML = `<i class="fa-solid fa-clock text-amber-600 text-base mt-0.5"></i>
+                <div>
+                    <strong>Account Registered & Pending Review:</strong><br>
+                    Your submission for <strong>${name} (${idNumber})</strong> has been dispatched to School Admin & IT Security. You can log in once approved.
+                </div>`;
+            notice.classList.remove('hidden');
+
+            renderApprovalTables();
+        }
+
+        // Login Handler with Strict Authorization Logic
+        function handleLogin(e) {
+            e.preventDefault();
+            const id = document.getElementById('loginId').value.trim();
+            const pass = document.getElementById('loginPassword').value;
+
+            const user = users.find(u => u.id === id && u.pass === pass);
+            const notice = document.getElementById('loginNotice');
+
+            if (!user) {
+                showToast("Invalid Credentials or ID Number!", "danger");
+                logDeviceActivity(`Failed Login (${id})`, getMockIP(), getBrowserInfo(), "REJECTED");
+                return;
+            }
+
+            // CHECK APPROVAL STATUS
+            if (user.status === "PENDING_APPROVAL") {
+                notice.className = "mb-4 p-3.5 rounded-xl text-xs flex items-start gap-2.5 badge-pending";
+                notice.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-600 text-base mt-0.5"></i>
+                    <div>
+                        <strong>Account Approval Required:</strong><br>
+                        Your account is pending review by the School Admin & IT Security team. Please wait for approval after verifying your ID card, LRN/ID, and Name.
+                    </div>`;
+                notice.classList.remove('hidden');
+                logDeviceActivity(`Blocked Login (Pending User: ${user.name})`, getMockIP(), getBrowserInfo(), "BLOCKED_PENDING");
+                return;
+            }
+
+            if (user.status === "REJECTED") {
+                notice.className = "mb-4 p-3.5 rounded-xl text-xs flex items-start gap-2.5 badge-rejected";
+                notice.innerHTML = `<i class="fa-solid fa-ban text-red-600 text-base mt-0.5"></i>
+                    <div>
+                        <strong>Access Denied:</strong><br>
+                        Your account registration was reviewed and rejected by the IT Security / Admin Auditor.
+                    </div>`;
+                notice.classList.remove('hidden');
+                logDeviceActivity(`Rejected Account Login Attempt (${user.name})`, getMockIP(), getBrowserInfo(), "REJECTED");
+                return;
+            }
+
+            // Strict Auth Check for non-admin accounts when enabled
+            if (strictMode && (user.role === "Student" || user.role === "Teacher")) {
+                notice.className = "mb-4 p-3.5 rounded-xl text-xs flex items-start gap-2.5 badge-pending";
+                notice.innerHTML = `<i class="fa-solid fa-shield-halved text-amber-600 text-base mt-0.5"></i>
+                    <div>
+                        <strong>Strict Security Mode Active:</strong><br>
+                        Unrecognized device detected. Your session requires authorization from IT Security.
+                    </div>`;
+                notice.classList.remove('hidden');
+                logDeviceActivity(`Strict Mode Intercept (${user.name})`, getMockIP(), getBrowserInfo(), "STRICT_HELD");
+                return;
+            }
+
+            // SUCCESSFUL LOGIN
+            currentUser = user;
+            logDeviceActivity(`Successful Login (${user.name})`, getMockIP(), getBrowserInfo(), "ALLOWED");
+
+            document.getElementById('authContainer').classList.add('hidden');
+            document.getElementById('dashboardContainer').classList.remove('hidden');
+            document.getElementById('userInfoHeader').classList.remove('hidden');
+            document.getElementById('userInfoHeader').classList.add('flex');
+
+            document.getElementById('userDisplayName').innerText = user.name;
+            document.getElementById('userDisplayRole').innerText = `${user.role} (ID: ${user.id})`;
+
+            // Map user role to default portal view
+            const rolePortalMap = {
+                "Student": 1,
+                "Teacher": 2,
+                "Dept Head": 3,
+                "School Admin": 4,
+                "IT Auditor": 5
+            };
+            switchPortal(rolePortalMap[user.role] || 1);
+            showToast(`Welcome back, ${user.name}!`, 'success');
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('authContainer').classList.remove('hidden');
+            document.getElementById('dashboardContainer').classList.add('hidden');
+            document.getElementById('userInfoHeader').classList.add('hidden');
+            document.getElementById('userInfoHeader').classList.remove('flex');
+            document.getElementById('loginId').value = '';
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('loginNotice').classList.add('hidden');
+            showToast("Successfully logged out.", "info");
+        }
+
+        // Switch Active Portal View
+        function switchPortal(portalNumber) {
+            document.querySelectorAll('.portal-view').forEach(view => view.classList.add('hidden'));
+            document.getElementById(`viewPortal${portalNumber}`).classList.remove('hidden');
+
+            for (let i = 1; i <= 5; i++) {
+                const btn = document.getElementById(`tabPortal${i}`);
+                if (i === portalNumber) {
+                    btn.className = "px-4 py-2 text-xs md:text-sm font-semibold rounded-lg flex items-center gap-2 transition bg-nnhsBlue text-white shadow";
+                } else {
+                    btn.className = "px-4 py-2 text-xs md:text-sm font-semibold rounded-lg flex items-center gap-2 transition text-slate-600 hover:bg-slate-100";
+                }
+            }
+        }
+
+        // Render Approval Queue for Admin (Portal 4) and IT Auditor (Portal 5)
+        function renderApprovalTables() {
+            const adminBody = document.getElementById('adminApprovalTableBody');
+            const itBody = document.getElementById('itApprovalTableBody');
+            adminBody.innerHTML = '';
+            itBody.innerHTML = '';
+
+            const pendingUsers = users.filter(u => u.status === "PENDING_APPROVAL");
+            
+            // Update Badges
+            const pendingCount = pendingUsers.length;
+            document.getElementById('pendingCountBadge').innerText = `${pendingCount} Requests Pending`;
+            
+            const adminBadge = document.getElementById('adminPendingBadge');
+            const itBadge = document.getElementById('itPendingBadge');
+
+            if (pendingCount > 0) {
+                adminBadge.innerText = pendingCount;
+                itBadge.innerText = pendingCount;
+                adminBadge.classList.remove('hidden');
+                itBadge.classList.remove('hidden');
+            } else {
+                adminBadge.classList.add('hidden');
+                itBadge.classList.add('hidden');
+            }
+
+            if (users.length === 0) return;
+
+            users.forEach(u => {
+                const badgeClass = u.status === 'APPROVED' 
+                    ? 'badge-approved' 
+                    : u.status === 'PENDING_APPROVAL' 
+                    ? 'badge-pending' 
+                    : 'badge-rejected';
+
+                const rowHtml = `
+                    <tr class="hover:bg-slate-50 transition border-b text-xs">
+                        <td class="p-3 text-slate-500">${u.created || '2026-10-11'}</td>
+                        <td class="p-3 font-semibold text-slate-800">${u.name}</td>
+                        <td class="p-3"><span class="bg-slate-200 text-slate-800 px-2 py-0.5 rounded font-medium">${u.role}</span></td>
+                        <td class="p-3 font-mono text-slate-700">${u.id}</td>
+                        <td class="p-3 text-center">
+                            <button onclick="openIdModal('${u.name}', '${u.id}', '${u.role}', '${u.idProof}')" class="text-nnhsBlue hover:underline text-xs font-semibold flex items-center justify-center gap-1 mx-auto">
+                                <i class="fa-solid fa-id-card"></i> View ID Card
+                            </button>
+                        </td>
+                        <td class="p-3 text-center">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${badgeClass}">
+                                ${u.status.replace('_', ' ')}
+                            </span>
+                        </td>
+                        <td class="p-3 text-center space-x-1">
+                            ${u.status === 'PENDING_APPROVAL' ? `
+                                <button onclick="updateAccountStatus('${u.id}', 'APPROVED')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold px-2.5 py-1 rounded shadow transition">
+                                    <i class="fa-solid fa-check"></i> APPROVE
+                                </button>
+                                <button onclick="updateAccountStatus('${u.id}', 'REJECTED')" class="bg-red-600 hover:bg-red-700 text-white text-[11px] font-semibold px-2.5 py-1 rounded shadow transition">
+                                    <i class="fa-solid fa-xmark"></i> REJECT
+                                </button>
+                            ` : `
+                                <span class="text-slate-400 italic text-[11px]">Action Completed</span>
+                            `}
+                        </td>
+                    </tr>
+                `;
+
+                adminBody.innerHTML += rowHtml;
+                itBody.innerHTML += rowHtml;
+            });
+        }
+
+        function updateAccountStatus(userId, newStatus) {
+            const targetUser = users.find(u => u.id === userId);
+            if (targetUser) {
+                targetUser.status = newStatus;
+                showToast(`Account for ${targetUser.name} (${targetUser.id}) set to ${newStatus}!`, newStatus === 'APPROVED' ? 'success' : 'danger');
+                logDeviceActivity(`Admin Status Change: ${targetUser.name} -> ${newStatus}`, getMockIP(), getBrowserInfo(), newStatus);
+                renderApprovalTables();
+            }
+        }
+
+        // Modal ID Card Viewer
+        function openIdModal(name, id, role, imgUrl) {
+            document.getElementById('modalApplicantName').innerText = name;
+            document.getElementById('modalApplicantDetails').innerText = `Role: ${role} | LRN/ID: ${id}`;
+            document.getElementById('modalIdImage').src = imgUrl;
+            document.getElementById('idModal').classList.remove('hidden');
+        }
+
+        function closeIdModal() {
+            document.getElementById('idModal').classList.add('hidden');
+        }
+
+        // IT Security Device Audit Tracker
+        function logDeviceActivity(action, ip, browser, status) {
+            const log = {
+                time: new Date().toLocaleTimeString(),
+                action: action,
+                ip: ip,
+                browser: browser,
+                resolution: `${window.innerWidth}x${window.innerHeight}`,
+                status: status
+            };
+
+            auditLogs.unshift(log);
+            renderAuditLogs();
+        }
+
+        function renderAuditLogs() {
+            const body = document.getElementById('deviceAuditLogBody');
+            body.innerHTML = '';
+            auditLogs.slice(0, 15).forEach(log => {
+                const statusColor = log.status === 'ALLOWED' || log.status === 'APPROVED'
+                    ? 'text-emerald-600 bg-emerald-50' 
+                    : log.status === 'REJECTED' 
+                    ? 'text-red-600 bg-red-50' 
+                    : 'text-amber-600 bg-amber-50';
+
+                body.innerHTML += `
+                    <tr class="border-b text-[11px]">
+                        <td class="p-2 font-mono text-slate-500">${log.time}</td>
+                        <td class="p-2 font-semibold text-slate-800">${log.action}</td>
+                        <td class="p-2 font-mono text-slate-600">${log.ip}</td>
+                        <td class="p-2 text-slate-600">${log.browser}</td>
+                        <td class="p-2 text-slate-500">${log.resolution}</td>
+                        <td class="p-2 text-center">
+                            <span class="px-2 py-0.5 rounded font-bold ${statusColor}">${log.status}</span>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function clearAuditLogs() {
+            auditLogs = [];
+            renderAuditLogs();
+            showToast("Device audit trail cleared.", "info");
+        }
+
+        function toggleStrictMode(enabled) {
+            strictMode = enabled;
+            showToast(`Strict Device Authorization Mode ${enabled ? 'ENABLED' : 'DISABLED'}`, enabled ? 'warning' : 'info');
+            logDeviceActivity(`Strict Mode Config Changed: ${enabled}`, getMockIP(), getBrowserInfo(), "CONFIG_CHANGE");
+        }
+
+        // Helpers for Client Hardware/Network Info
+        function getMockIP() {
+            return `112.198.${Math.floor(Math.random()*250)}.${Math.floor(Math.random()*250)}`;
+        }
+
+        function getBrowserInfo() {
+            return "Chrome / Windows 11";
+        }
+
+        // Student & Teacher Dynamic Table Operations
+        function renderTeacherStudents() {
+            const tbody = document.getElementById('teacherECRTable');
+            tbody.innerHTML = '';
+            
+            const students = [
+                { id: "13645200912", name: "Juan Dela Cruz", w: 92, p: 90, e: 94 },
+                { id: "13645200913", name: "Maria Clara Santos", w: 88, p: 92, e: 90 },
+                { id: "13645200914", name: "Jose Rizal Mercado", w: 95, p: 96, e: 98 },
+                { id: "13645200915", name: "Andres Bonifacio", w: 85, p: 89, e: 87 }
+            ];
+
+            students.forEach((s, idx) => {
+                const finalGrade = (s.w * 0.4 + s.p * 0.4 + s.e * 0.2).toFixed(2);
+                tbody.innerHTML += `
+                    <tr class="border-b hover:bg-slate-50">
+                        <td class="p-2 font-mono text-slate-600">${s.id}</td>
+                        <td class="p-2 font-semibold text-slate-800">${s.name}</td>
+                        <td class="p-2 text-center"><input type="number" value="${s.w}" class="w-14 text-center border rounded py-0.5"></td>
+                        <td class="p-2 text-center"><input type="number" value="${s.p}" class="w-14 text-center border rounded py-0.5"></td>
+                        <td class="p-2 text-center"><input type="number" value="${s.e}" class="w-14 text-center border rounded py-0.5"></td>
+                        <td class="p-2 text-center font-bold text-nnhsBlue bg-indigo-50/50">${finalGrade}</td>
+                        <td class="p-2 text-center">
+                            <button onclick="showToast('Grades updated for ${s.name}', 'success')" class="text-xs bg-emerald-600 text-white px-2 py-1 rounded hover:bg-emerald-700">Save</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Student Thread Inquiry
+        function sendStudentMessage() {
+            const input = document.getElementById('studentMsgInput');
+            const val = input.value.trim();
+            if (!val) return;
+
+            const box = document.getElementById('studentThreadBox');
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            box.innerHTML += `
+                <div class="bg-blue-100 p-3 rounded-lg max-w-md ml-auto text-xs text-blue-900 border border-blue-200">
+                    <p class="font-bold">${currentUser ? currentUser.name : 'Juan Dela Cruz'} (Student)</p>
+                    <p>${val}</p>
+                    <span class="text-[10px] text-blue-600 block text-right mt-1">${time}</span>
+                </div>
+            `;
+            input.value = '';
+            box.scrollTop = box.scrollHeight;
+        }
+
+        // Admin Memo Dispatch
+        function dispatchMemo() {
+            const title = document.getElementById('memoTitle').value.trim();
+            if (!title) {
+                showToast("Please write a memorandum title first.", "warning");
+                return;
+            }
+            showToast(`Memorandum "${title}" dispatched across all school portals!`, "success");
+            document.getElementById('memoTitle').value = '';
+            document.getElementById('memoBody').value = '';
+        }
+    </script>
+</body>
+</html>
